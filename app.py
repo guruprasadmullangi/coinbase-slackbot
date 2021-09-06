@@ -28,10 +28,19 @@ auth_client = cbpro.AuthenticatedClient(COINBASE_API_KEY, COINBASE_API_SECRET, C
 def help(ack, command):
     ack(f"Hello <@{command['user_id']}>")
 
-@app.command('/balance')
-def help(ack, command, logger):
-    logger.info(auth_client.get_accounts())
-    ack(f"Hello <@{command['user_id']}>")
+@app.command('/accounts')
+def help(ack, command):
+    accounts = auth_client.get_accounts()
+    msg = '```'
+    for account in accounts:
+        if float(account['balance']) > 0.0000000000000000:
+            currency = account['currency']
+            balance = account['balance']
+            available = account['available']
+            msg = msg + currency +' '+ balance + ' ' + available + '\n'
+
+    msg = msg + '```'
+    ack(f"Your accounts: \n\n{msg}")
 
 if __name__ == '__main__':
     SocketModeHandler(app, SLACK_APP_TOKEN).start()
