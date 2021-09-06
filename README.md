@@ -1,0 +1,2 @@
+# coinbase-slackbot
+coinbase-slackbot
