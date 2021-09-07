@@ -1,9 +1,6 @@
 import os
 import logging
 import cbpro
-import re
-import sys
-import base64
 from datetime import datetime
 from os.path import join, dirname
 from dotenv import load_dotenv
@@ -23,6 +20,7 @@ SLACK_APP_TOKEN = os.environ.get('SLACK_APP_TOKEN')
 
 app = App(token=SLACK_BOT_TOKEN)
 auth_client = cbpro.AuthenticatedClient(COINBASE_API_KEY, COINBASE_API_SECRET, COINBASE_API_PASSPHARSE, api_url="https://api.pro.coinbase.com")
+public_client = cbpro.PublicClient()
 
 @app.command('/help')
 def help(ack, command):
@@ -37,7 +35,8 @@ def help(ack, command):
             currency = account['currency']
             balance = account['balance']
             available = account['available']
-            msg = msg + currency +' '+ balance + ' ' + available + '\n'
+            ticker_price = public_client.get_product_ticker(product_id=currency+'-USD')
+            msg = msg + "{:<8} {:<30} {:<20} {:<20} {:<20}".format(currency, balance, available, ticker_price['price'], float(available) * float(ticker_price['price'])) + '\n'
 
     msg = msg + '```'
     ack(f"Your accounts: \n\n{msg}")
